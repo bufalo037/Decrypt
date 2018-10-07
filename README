@@ -1,0 +1,185 @@
+===============================================================================
+									Costea Mihai 
+										322CB
+===============================================================================
+									IOCLA Tema2
+===============================================================================
+===============================================================================
+
+
+						Strategie si conventii folosite
+
+
+Am implementat urmatoarele functii: search_ch, xor_strings, rolling_xor, 
+char_decode, decode, xor_hex_strings, decode32char, base32decode_5oct,
+base32decode, bruteforce_singlebyte_xor, initialize_table, get_char_at_index,
+get_index_at_char, substitution, finish_table, complete_table, manareala,
+break_substitution.
+
+Functiile implementate de mine primesc parametii pe stiva de la dreapta la
+stanga (Conventia C-ului), si salveaza toate registrele inafara de eax, care
+este folosit ca registru de return pentru iesirea din functie, daca, bineinteles
+functia are ce sa returneze. 
+
+Am lasat scheletul din main intact, chiar si dupa terminarea temei, dar am
+adaugat pe langa acesta codul meu.
+
+La task-ul 6 am folosit comanda equ pt a imi defini 2 constante ca sa ii dau un
+caracter mai general temei, ca am fost oarecum nesatisfacut ca nu s-a putut 
+face programatic taskul 6 decat fara f multa munca din partea noastra (sa 
+invatam sa facem dictionary attack si chestii de genul).
+
+Pentru a lua inputul de la un task la altul s-a folosit functia search_ch care
+va urma sa fie prezenata.
+===============================================================================
+===============================================================================
+
+Functia search_ch:
+Primeste 2 parametrii primul fiind un string care se termina cu /0 iar al doilea
+este un caracter iar aceasta functie gaseste prima ocurenta a caracterului in 
+sir si ii returneaza adresa, din nefericire spre deosebire de strchr aceasta nu
+se va opri daca nu gaseste caraacterul pana nu este epuizat tot ECX-ul deoarece
+am folosit instructiuni pe string pe parcursul temei. Dar este ok pt ca m-am 
+asigurat mereu ca atunci cand se foloseste functia caracterul cautat se gaseste
+in sir.
+
+===============================================================================
+===============================================================================
+
+Task1:
+
+Task1 foloseste doar functia xor_strings si search_ch
+
+Functia xor_strings face xor pe bytes intre caracteele de la aceiasi indexi
+dintre argumenul 1 stringul si argumentul 2 cheia si scrie in memorie peste
+argumentul 1.
+
+===============================================================================
+===============================================================================
+
+Task2:
+
+Taskul 2 foloseste rolling_xor, acesta se duce la coada stringului folosind 
+functia search_ch iar dupa face xor in place intre bit-ul de la pozitia i si
+i-1 si scrie la adresacorespunzatoare lui i rezultatul. Se face acest lucru
+pana cand i devine primul caracter din sir.
+
+===============================================================================
+===============================================================================
+
+Task3:
+
+Ideea taskului 3 este ca transform fiecare 2 bytes de data intro valoare in 
+zecimal presupunand ca acei 2 bytes sunt defapt un numar scris in hexazecimal.
+
+Acest lucru se realizeaza folosind functia decode care decdifica tot stringul
+prin ajutorul functii ajutatoare char_decode care prieste un byte si intoarce
+valoarea acestuia in zecimal daca acel byte ar fi interpretat ca fiind un
+caraacter hexahezimal.
+
+Functia xor_hex_strings dupa ce a decodificat si cheia si stingul folosindu-se
+de apeluri ale functiei decode (care apeleaza char_decode), va folosi functia
+implementata pentru Task-ul 1 si anume xor_strings sa faca xor intre string si
+cheie.
+
+===============================================================================
+===============================================================================
+
+Task4:
+ 
+Task-ul 4 se foloseste de functiile decode32char, base32decode_5oct,
+base32decode pentru a realiza treaba.
+
+Functia base32decode este functia principala ea a apela procedura
+base32decode_5oct care aer ca scop sa puna in eax si intr-un pointer
+dat ca parametru cei 5 octeti decodificati, urmand ca acestia sa fie
+suprascrisi peste cei 8 octeti scrisi pentru a reprezenta a face codificarea.
+
+Functia de decodificare de 5 octeti o sa decofifice un octet at a time 
+folosindu-se de de functia decode32char iar dupa folosind niste concatenari de
+biti reuseste in final sa puna in eax si in pointerul rezervat pentru ultimul 
+byte deoarece nu incapea si accesta in eax cele 5 caractere decodificate, care
+urmeaza sa se suprascrie in functia base32decode. Se repeta acest procedeu pana
+cand este intalni terminatorul de sir \0.
+
+===============================================================================
+===============================================================================
+
+Task5:
+
+Task-ul 5 este format dintr-o sigura functie: bruteforce_singlebyte_xor , care
+cloneaza un byte pana la dimensiunea stringului, ca sa faca o cheie iar aceasta
+cheie o sa fie aplicata pe string. Cheia este generata in ordine de la byte-ul
+0x0 pana la byte-ul 0xff.
+
+Din fericire stim ca stringul rezultat trebuie sa contintina cuvantul force asa
+ca incercam fiecare cheie (bruteforce) pana cand gasim cheia buna. Deoarece 
+noi decriptam sirul folosind o ccheie trebuie sa il criptam inapoi ca sa putem
+sa continuam procesul de gasire al stringuli original. Acest lucru este posibil
+tot prin functia xor deoarece aceasta este o functie bijectiva, iar inversa sa
+este chiar ea insasi.
+
+
+===============================================================================
+===============================================================================
+
+Task6:
+
+Task-ul 6 foloseste functiile initialize_table, get_char_at_index,
+get_index_at_char, substitution, finish_table, complete_table, manareala,
+si break_substitution.
+
+Tabela este initializata in main iar dupa este creat un pointer pe stiva
+catre adresa ei care va fi trimis ca parametru functiei principale care se
+ocupa cu acest task si anume break_substitution.
+
+Functia initialize_table initializeaza tabela cu caracterele care sunt trecute
+pe pozitiile pare. Se face acest lucru prin intermediul unui pointer catre 
+tabela. Pointerul este pasat in parametrii functiei.
+
+Functia get_char_at_index codifica un numar pentru a fi reprezentat ca char
+algritmul de criptare este cam acelas ca cel in base32 numai ca se adauga la
+final in acesa in loc de numere caracterul spatiu si caracterul.
+
+Functia get_index_at_char face opetatia inversa functiei mentionate mai sus,
+aceasta decodificand caracterul primit ca parametru.
+
+Complete_table cred ca este cea mai loborioasa functie. In aceasta se 
+construieste un vector de frecventa pentru string-ul aferent task-ului. Dupa 
+aceea creaza un vector de substitutie care este in principiu un vector care a
+ordonat crescator caracterele dupa frecventa limbii engleze (data in cerinta).
+Apoi se va apela in aceasta functia finish_table cu parametrii tabela de 
+substituttie vectorul de frecventa si vectorul de substitutie.
+
+Functia finish_table are ca scop completarea tabelei de substituie create 
+folosindu-se de vectorul de frecventa si de vectorul de substitutie. Basicly
+functia va cauta un maxim in vectorul de frecventa, dupa care va codifica
+indexul in caracterul specific iar acesta va fi scrie pe pozitia corespunzatoare
+in tabela de frecventa, folosindu-se de tabela de substitutie. Dupa care va 
+inainta in tabela de substitutie. Acest lucru se realizeaza prin urmatorul alg:
+Caracterul de pe pozitia curenta in vectorulde substitutie va fi decodificat in
+indexul corespunzator sau, iar dupa se va adauga la acesta valoarea sa (ca si cum
+as imulti cu 2), iar dupa se va adauga 1 sa ajunga pe pozitia impara 
+corespunzatoare.
+
+Maximul din vecotul e frecventa este facut -1 ca sa fie luat in calcul (
+frecventele sunt strict pozitive).
+Pointerul care pointeaza catre vectorul de substitutie va fi incrementat cu 1.
+Se repeta tot procedeul pana cand este folosita fiecare valoare din vectorul de
+frecventa.
+
+Procedura manareala este efectiv functia in care am facut trial and error.
+Eu am observat ca atunci cand mi-as dori sa schimb valoarea a 2 caractere in
+textul rezultat este suficient sa interschimb valorile de pe pozitiile impare
+corespunzatoare caracterelor dorite de mine (pozitiile pare). Si eventually am
+ajuns la rezultat. :)
+
+Procedura substitution decodifica prin algoritmul substitutiei, folosindu-se de
+tabela creata cu ajutorul functiilor mentionate mai sus, caracterele din string.
+Aceasta verifica pozitiile impare din tabela pt caracterul cautat iar dupa il
+substituie in string-ul meu cu caracterul imediat anterior acestuia. Dupa care
+se avanseaza in string iar prodcedeul de cautare a caracterului dorit in string
+se repeta.
+
+===============================================================================
+===============================================================================
